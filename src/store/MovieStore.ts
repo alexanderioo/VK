@@ -13,7 +13,7 @@ class MovieStore {
     genres: [] as string[],
   };
   page = 1;
-  limit = 50;
+  limit = 1;
 
   constructor() {
     makeAutoObservable(this);

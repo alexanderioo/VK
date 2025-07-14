@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import type { Movie } from "../types/Movie";
 import styles from "./MovieCard.module.css";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 interface Props {
   movie: Movie;
@@ -9,7 +11,7 @@ interface Props {
 const placeholderPoster = "https://via.placeholder.com/200x300?text=No+Image";
 
 const MovieCard = ({ movie }: Props) => {
-  const posterUrl = movie.poster?.previewUrl || movie.poster?.url || placeholderPoster;
+  const [posterUrl, setPosterUrl] = useState<string | null>(null);
   const title = movie.name || movie.alternativeName || movie.enName || "Нет названия";
   const year = movie.year || "Нет года";
   const rating =
@@ -19,11 +21,37 @@ const MovieCard = ({ movie }: Props) => {
         ? movie.rating.imdb
         : "Нет рейтинга";
 
+  useEffect(() => {
+    let isMounted = true;
+    const localPoster = movie.poster?.previewUrl || movie.poster?.url;
+    if (localPoster) {
+      setPosterUrl(localPoster);
+    } else if (movie.id) {
+      axios.get(`https://api.kinopoisk.dev/v1.4/image`, {
+        params: { movieId: movie.id, type: 'poster', limit: 1 },
+        headers: { 'X-API-KEY': import.meta.env.VITE_KINOPOISK_API_KEY },
+      })
+      .then(res => {
+        if (isMounted && res.data.docs && res.data.docs.length > 0) {
+          setPosterUrl(res.data.docs[0].previewUrl || res.data.docs[0].url || placeholderPoster);
+        } else if (isMounted) {
+          setPosterUrl(placeholderPoster);
+        }
+      })
+      .catch(() => {
+        if (isMounted) setPosterUrl(placeholderPoster);
+      });
+    } else {
+      setPosterUrl(placeholderPoster);
+    }
+    return () => { isMounted = false; };
+  }, [movie]);
+
   return (
     <Link to={`/movie/${movie.id}`} className={styles.link}>
       <div className={styles.card} style={{ minHeight: 380, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start' }}>
         <img
-          src={posterUrl}
+          src={posterUrl || placeholderPoster}
           alt={title}
           className={styles.image}
           style={{ width: 200, height: 300, objectFit: 'cover', borderRadius: 8, marginBottom: 12 }}
