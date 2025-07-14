@@ -7,5 +7,5 @@ const API = axios.create({
   },
 });
 
-export const searchMovies = (query: string) =>
-  API.get("/v1.2/movie/search", { params: { query } });
+export const searchMovies = (query: string, page: number = 1, limit: number = 10) =>
+  API.get("/v1.2/movie/search", { params: { query, page, limit } });

@@ -19,6 +19,9 @@ const MovieCard = ({ movie }: Props) => {
         )}
         <h3 className={styles.title}>{movie.name}</h3>
         <p className={styles.year}>{movie.year}</p>
+        {movie.rating?.kp !== undefined && (
+          <p className={styles.rating}>Рейтинг: {movie.rating.kp}</p>
+        )}
       </div>
     </Link>
   );
