@@ -7,6 +7,10 @@ class MovieStore {
   isLoading = false;
   error: string | null = null;
   query = "Matrix";
+  filters = {
+    yearRange: [1980, 2025] as [number, number],
+    genre: ""
+  };
 
   constructor() {
     makeAutoObservable(this);
@@ -18,8 +22,15 @@ class MovieStore {
 
     try {
       const response = await searchMovies(this.query);
+      let movies = response.data.docs;
+      const { yearRange, genre } = this.filters;
+      movies = movies.filter((movie: any) => {
+        const yearOk = movie.year >= yearRange[0] && movie.year <= yearRange[1];
+        const genreOk = !genre || (movie.genres && movie.genres.some((g: any) => g.name.toLowerCase() === genre.toLowerCase()));
+        return yearOk && genreOk;
+      });
       runInAction(() => {
-        this.movies = response.data.docs;
+        this.movies = movies;
         this.isLoading = false;
       });
     } catch (e: any) {
@@ -32,6 +43,14 @@ class MovieStore {
 
   setQuery(q: string) {
     this.query = q;
+  }
+
+  setFilters(filters: { query: string; yearRange: [number, number]; genre: string }) {
+    this.query = filters.query;
+    this.filters = {
+      yearRange: filters.yearRange,
+      genre: filters.genre
+    };
   }
 }
 
