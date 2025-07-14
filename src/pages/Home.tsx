@@ -6,11 +6,28 @@ import Filters from "../components/Filters";
 import Header from "../components/Header";
 import styles from "./Home.module.css";
 import { CircularProgress, Alert } from "@mui/material";
+import { useSearchParams } from "react-router-dom";
+import MovieIcon from "@mui/icons-material/Movie";
+
+const parseParams = (params: URLSearchParams) => {
+  return {
+    query: params.get("query") || "",
+    yearRange: [
+      Number(params.get("yearStart")) || 1990,
+      Number(params.get("yearEnd")) || 2025,
+    ] as [number, number],
+    ratingRange: [
+      Number(params.get("ratingStart")) || 0,
+      Number(params.get("ratingEnd")) || 10,
+    ] as [number, number],
+    genres: params.get("genres") ? params.get("genres")!.split(",") : [],
+  };
+};
 
 const Home = () => {
-  useEffect(() => {
-    movieStore.fetchMovies();
-  }, []);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const filtersFromUrl = parseParams(searchParams);
 
   // Infinite scroll
   useEffect(() => {
@@ -27,26 +44,36 @@ const Home = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleSearch = (query: string) => {
-    movieStore.setQuery(query);
-    movieStore.fetchMovies();
-  };
-
   const handleFilterChange = (filters: {
     query: string;
     yearRange: [number, number];
-    genre: string;
+    ratingRange: [number, number];
+    genres: string[];
   }) => {
     movieStore.setFilters(filters);
     movieStore.fetchMovies();
+    setSearchParams({
+      query: filters.query,
+      yearStart: String(filters.yearRange[0]),
+      yearEnd: String(filters.yearRange[1]),
+      ratingStart: String(filters.ratingRange[0]),
+      ratingEnd: String(filters.ratingRange[1]),
+      genres: filters.genres.join(","),
+    });
   };
 
   return (
-    <div>
-      <Header onSearch={handleSearch} />
+    <div className={styles.pageBg}>
+      <Header />
       <div className={styles.container}>
-        <h1 className={styles.title}>Home — Список фильмов</h1>
-        <Filters onFilterChange={handleFilterChange} />
+        <div className={styles.filtersBlock}>
+          <h1 className={styles.title}>
+            <MovieIcon fontSize="large" style={{ color: '#ff6600' }} />
+            Список фильмов
+          </h1>
+          <p className={styles.subtitle}>Открой для себя лучшие фильмы по жанрам, рейтингу и году!</p>
+          <Filters onFilterChange={handleFilterChange} initialFilters={filtersFromUrl} />
+        </div>
         {movieStore.isLoading && (
           <div style={{ display: "flex", justifyContent: "center", margin: 32 }}>
             <CircularProgress />

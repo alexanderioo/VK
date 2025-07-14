@@ -12,4 +12,5 @@ export interface Movie {
     kp?: number;
     imdb?: number;
   };
+  genres?: { name: string }[];
 }

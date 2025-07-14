@@ -47,9 +47,11 @@ const MovieCard = ({ movie }: Props) => {
     return () => { isMounted = false; };
   }, [movie]);
 
+  const genres = (movie.genres?.map((g: any) => g.name).filter(Boolean) || []);
+
   return (
     <Link to={`/movie/${movie.id}`} className={styles.link}>
-      <div className={styles.card} style={{ minHeight: 380, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start' }}>
+      <div className={`${styles.card} fadeIn`} style={{ minHeight: 380, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start' }}>
         <img
           src={posterUrl || placeholderPoster}
           alt={title}
@@ -59,6 +61,11 @@ const MovieCard = ({ movie }: Props) => {
         <h3 className={styles.title} style={{ margin: 0, fontSize: 18, textAlign: 'center' }}>{title}</h3>
         <p className={styles.year} style={{ margin: '4px 0', color: '#666' }}>{year}</p>
         <p className={styles.rating} style={{ margin: 0, fontWeight: 500 }}>Рейтинг: {rating}</p>
+        <div style={{ marginTop: 6, display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
+          {genres.map((g: string) => (
+            <span className="chip" key={g}>{g}</span>
+          ))}
+        </div>
       </div>
     </Link>
   );

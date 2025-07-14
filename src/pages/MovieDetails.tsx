@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Box, Typography, Chip, CircularProgress, Button } from "@mui/material";
 import axios from "axios";
+import favoritesStore from "../store/FavoritesStore";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogActions from "@mui/material/DialogActions";
 
 const placeholderPoster = "https://via.placeholder.com/300x450?text=No+Image";
 
@@ -10,6 +14,14 @@ const MovieDetails = () => {
   const [movie, setMovie] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const handleAddFavorite = () => setOpen(true);
+  const handleConfirm = () => {
+    favoritesStore.add(movie);
+    setOpen(false);
+  };
+  const handleCancel = () => setOpen(false);
 
   useEffect(() => {
     setLoading(true);
@@ -64,6 +76,22 @@ const MovieDetails = () => {
           ))}
         </Box>
         {/* Кнопка для добавления в избранное будет позже */}
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleAddFavorite}
+          sx={{ mt: 2, width: 240 }}
+          disabled={favoritesStore.isFavorite(movie.id)}
+        >
+          {favoritesStore.isFavorite(movie.id) ? "В избранном" : "Добавить в избранное"}
+        </Button>
+        <Dialog open={open} onClose={handleCancel}>
+          <DialogTitle>Добавить фильм в избранное?</DialogTitle>
+          <DialogActions>
+            <Button onClick={handleCancel}>Отмена</Button>
+            <Button onClick={handleConfirm} variant="contained" color="primary">Добавить</Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );

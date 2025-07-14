@@ -67,3 +67,29 @@ export default tseslint.config([
   },
 ])
 ```
+
+## Запуск проекта
+
+1. Установите зависимости:
+
+```bash
+npm install
+```
+
+2. Создайте файл `.env` в корне проекта и добавьте ваш API-ключ:
+
+```
+VITE_KINOPOISK_API_KEY=ваш_ключ_от_api.kinopoisk.dev
+```
+
+3. Запустите проект в режиме разработки:
+
+```bash
+npm run dev
+```
+
+4. Откройте [http://localhost:5173](http://localhost:5173) в браузере.
+
+---
+
+**Требования:** Node.js 16+, npm 8+

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, TextField, Slider, Select, MenuItem, InputLabel, FormControl, OutlinedInput, Checkbox, ListItemText } from "@mui/material";
 
 interface FiltersProps {
@@ -8,6 +8,12 @@ interface FiltersProps {
     ratingRange: [number, number];
     genres: string[];
   }) => void;
+  initialFilters?: {
+    query: string;
+    yearRange: [number, number];
+    ratingRange: [number, number];
+    genres: string[];
+  };
 }
 
 const genreOptions = [
@@ -18,15 +24,26 @@ const genreOptions = [
   { value: "sci-fi", label: "Фантастика" },
 ];
 
-const Filters: React.FC<FiltersProps> = ({ onFilterChange }) => {
-  const [query, setQuery] = useState("");
-  const [yearRange, setYearRange] = useState<[number, number]>([1990, 2025]);
-  const [ratingRange, setRatingRange] = useState<[number, number]>([0, 10]);
-  const [genres, setGenres] = useState<string[]>([]);
+const Filters: React.FC<FiltersProps> = ({ onFilterChange, initialFilters }) => {
+  const [query, setQuery] = useState(initialFilters?.query ?? "");
+  const [yearRange, setYearRange] = useState<[number, number]>(initialFilters?.yearRange ?? [1990, 2025]);
+  const [ratingRange, setRatingRange] = useState<[number, number]>(initialFilters?.ratingRange ?? [0, 10]);
+  const [genres, setGenres] = useState<string[]>(initialFilters?.genres ?? []);
 
-  const handleChange = () => {
+  useEffect(() => {
+    if (initialFilters) {
+      setQuery(initialFilters.query);
+      setYearRange(initialFilters.yearRange);
+      setRatingRange(initialFilters.ratingRange);
+      setGenres(initialFilters.genres);
+    }
+    // eslint-disable-next-line
+  }, [JSON.stringify(initialFilters)]);
+
+  useEffect(() => {
     onFilterChange({ query, yearRange, ratingRange, genres });
-  };
+    // eslint-disable-next-line
+  }, [query, yearRange, ratingRange, genres]);
 
   return (
     <Box display="flex" gap={2} alignItems="center" mb={3}>
@@ -36,7 +53,6 @@ const Filters: React.FC<FiltersProps> = ({ onFilterChange }) => {
         value={yearRange}
         onChange={(i, newValue) => {
           setYearRange(newValue as [number, number]);
-          handleChange();
         }}
         valueLabelDisplay="auto"
         sx={{ width: 180 }}
@@ -48,7 +64,6 @@ const Filters: React.FC<FiltersProps> = ({ onFilterChange }) => {
         value={ratingRange}
         onChange={(i, newValue) => {
           setRatingRange(newValue as [number, number]);
-          handleChange();
         }}
         valueLabelDisplay="auto"
         sx={{ width: 120 }}
@@ -60,7 +75,6 @@ const Filters: React.FC<FiltersProps> = ({ onFilterChange }) => {
           value={genres}
           onChange={(e) => {
             setGenres(typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value);
-            handleChange();
           }}
           input={<OutlinedInput label="Жанры" />}
           renderValue={(selected) =>

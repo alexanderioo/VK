@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { AppBar, Toolbar, Typography, InputBase } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import { alpha, styled } from "@mui/material/styles";
+import { Link } from "react-router-dom";
 
 interface HeaderProps {
-  onSearch: (query: string) => void;
+  onSearch?: (query: string) => void;
 }
 
 const Search = styled("div")(({ theme }) => ({
@@ -44,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({ onSearch }) => {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     setSearch(value);
-    onSearch(value);
+    if (onSearch) onSearch(value);
   };
 
   return (
